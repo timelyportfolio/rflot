@@ -65,14 +65,18 @@ flotSeries <- function(flotChart,
     attr(flotChart$x, "data")
   } else {
     if(!is.data.table(data)) {
-      stop("flotSeries: data parameter must be NULL (default) or of class data.table")
+      warning("flotSeries: data parameter must be NULL (default) or of class data.table")
     }
     data
   }
-
+  
   lst.eval.vars<-as.list(match.call()[-1])[c('x','y', 'extra.cols', 'group')]
+  if(class(data)=="data.frame")
+    lst.eval.vars = lapply(lst.eval.vars,deparse)
+  
   #In the event that the user has not defined extra.cols or group
   lst.eval.vars<-lst.eval.vars[!is.na(names(lst.eval.vars))]
+  
   if(!all(c('x','y') %in% names(lst.eval.vars))) {
     stop("flotSeries: Must specify expressions for both x, and y parameters")
   }
@@ -107,7 +111,11 @@ flotSeries <- function(flotChart,
     }
     # default the label if we need to
     if (is.null(series$label))
-      series$label <- deparse(lst.eval.vars$y)
+      series$label <- ifelse(
+        is.character(lst.eval.vars$y)
+        ,lst.eval.vars$y
+        ,deparse(lst.eval.vars$y)
+      )
     #for consistent series object handling across the not/grouped cases
     series<-list(series)
 
@@ -150,11 +158,19 @@ flotSeries <- function(flotChart,
   #If we haven't named the axes by now, let's use the variable names for this
   #series
   if(is.null(flotChart$x$options$xaxis$axisLabel)) {
-    flotChart$x$options$xaxis$axisLabel <- deparse(lst.eval.vars$x)
+    flotChart$x$options$xaxis$axisLabel <- ifelse(
+      is.character(lst.eval.vars$x)
+      ,lst.eval.vars$x
+      ,deparse(lst.eval.vars$x)
+    )
   }
 
   if(is.null(flotChart$x$options$yaxis$axisLabel)) {
-    flotChart$x$options$yaxis$axisLabel <- deparse(lst.eval.vars$y)
+    flotChart$x$options$yaxis$axisLabel <- ifelse(
+      is.character(lst.eval.vars$y)
+      ,lst.eval.vars$y
+      ,deparse(lst.eval.vars$y)
+    )
   }
 
   flotChart$x$series <- c(flotChart$x$series, series)

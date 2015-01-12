@@ -28,7 +28,7 @@ flotChart <- function(data, width = NULL, height = NULL) {
                     ,yaxis = list(position='left')
                     ,tooltip=T)
   if(!is.data.table(data)) {
-    stop("flotChart: An object of class data.table is expected for the data parameter")
+    warning("flotChart: An object of class data.table is expected for the data parameter")
   }
   attr(x, "data") <- data
 #  # create widget
